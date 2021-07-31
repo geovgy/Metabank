@@ -5,7 +5,7 @@ describe("SavingsPool", function () {
 
   beforeEach(async () => {
     const SavingsPool = await ethers.getContractFactory("SavingsPool");
-    instance = await SavingsPool.deploy();
+    instance = await SavingsPool.deploy("0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9");
     await instance.deployed();
     await instance.createMembership();
   });

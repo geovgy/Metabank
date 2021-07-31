@@ -15,7 +15,7 @@ async function main() {
 
   // We get the contract to deploy
   const SavingsPool = await hre.ethers.getContractFactory("SavingsPool");
-  const savingsPool = await SavingsPool.deploy();
+  const savingsPool = await SavingsPool.deploy("0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9");
 
   await savingsPool.deployed();
 

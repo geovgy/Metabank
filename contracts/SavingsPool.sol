@@ -52,7 +52,12 @@ contract SavingsPool {
   }
 
   function depositToSavings(uint _amount) external memberOnly {
+    dai.transferFrom(msg.sender, address(this), _amount);
+    dai.approve(address(pool), _amount);
+    pool.deposit(address(dai), _amount, address(this), 0);
 
+    individualAmount[msg.sender] += _amount;
+    totalAmount += _amount;
   }
 
   function withdrawFromSavings(uint _amount) external memberOnly {

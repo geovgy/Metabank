@@ -3,12 +3,23 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 
+import "../interfaces/IERC20.sol";
+import "../interfaces/ILendingPool.sol";
 
 contract SavingsPool {
   mapping(address => bool) private isMember;
   mapping(address => uint) private individualAmount;
   uint totalPoolAmount;
   uint public memberCount;
+
+  // Additional Variables Needed:
+  // ILendingPool address object
+  // IERC20 token addresses
+  // IERc20 aToken addresses (Aave specific)
+
+  // Additional functions Needed:
+  // call for interest accrued and APY
+  // function to create a create limit and credit contract
 
   modifier memberOnly {
     require(isMember[msg.sender], "You are not a member.");

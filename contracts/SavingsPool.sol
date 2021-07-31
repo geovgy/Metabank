@@ -9,13 +9,20 @@ import "../interfaces/ILendingPool.sol";
 contract SavingsPool {
   mapping(address => bool) private isMember;
   mapping(address => uint) private individualAmount;
-  uint totalPoolAmount;
+  uint totalAmount;
   uint public memberCount;
 
   // Additional Variables Needed:
   // ILendingPool address object
   // IERC20 token addresses
   // IERc20 aToken addresses (Aave specific)
+  ILendingPool pool;
+  IERC20 constant dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+  IERC20 constant aDai = IERC20(0x028171bCA77440897B824Ca71D1c56caC55b68A3);
+
+  constructor(address _lendingPoolAddress) {
+    pool = ILendingPool(_lendingPoolAddress);
+  }
 
   // Additional functions Needed:
   // call for interest accrued and APY

@@ -35,6 +35,7 @@ contract SavingsPool {
     _;
   }
 
+  // TO DO: call lending pool to get savings amount + interest accrued
   function getSavingsBalance() public view memberOnly returns (uint) {
     console.log("msg.sender savings balance is ", individualAmount[msg.sender]/(10**18));
     return individualAmount[msg.sender];
@@ -54,6 +55,7 @@ contract SavingsPool {
 
   }
 
+  // Helper - for DRY method (may delete in future)
   function _deposit(uint _amount) private returns (bool) {
     dai.approve(address(pool), _amount);
     pool.deposit(address(dai), _amount, address(this), 0);
@@ -72,6 +74,7 @@ contract SavingsPool {
     totalAmount = totalAmount + _amount;
   }
 
+  // Helper - to swap ETH to DAI for users
   function swap() external payable {
     require(msg.value > 0, "There is no ETH in your deposit");
     
@@ -85,6 +88,7 @@ contract SavingsPool {
     }(0, path, msg.sender, block.timestamp);
   }
 
+  // Helper - FOR TESTING PURPOSES ONLY (Delete before deploying)
   function daiBalance() external view returns (uint) {
     uint balance = dai.balanceOf(msg.sender);
     console.log("msg.sender DAI balance is ", balance/(10**18));

@@ -37,15 +37,11 @@ contract SavingsPool {
 
   // TO DO: call lending pool to get savings amount + interest accrued
   function getMemberSavingsBalance() public view memberOnly returns (uint) {
-    // Get interest accrued as multiple of total deposited
+    // Get interest accrued as multiple (1 + xx%) of total deposited
     uint interestX = aDai.balanceOf(address(this)) / totalPrincipal;
-    console.log("Interest multiple: ", interestX);
 
     // Apply multiple to individual member's savings deposit
     uint memberSavings = individualAmount[msg.sender] * interestX;
-    
-    console.log("msg.sender total deposit is ", individualAmount[msg.sender]);
-    console.log("msg.sender savings balance is ", memberSavings);
     return memberSavings;
   }
 
@@ -108,7 +104,7 @@ contract SavingsPool {
   // Helper - FOR TESTING PURPOSES ONLY (Delete before deploying)
   function daiBalance() external view returns (uint) {
     uint balance = dai.balanceOf(msg.sender);
-    console.log("msg.sender DAI balance is ", balance/(10**18));
+    console.log("msg.sender DAI balance is ", balance);
     return dai.balanceOf(msg.sender);
   }
 
@@ -132,6 +128,10 @@ contract SavingsPool {
   // }
 
   function withdrawFromSavings(uint _amount) external memberOnly {
-
+    uint currentSavings = getMemberSavingsBalance();
+    require(_amount <= currentSavings, "You cannot withdraw an amount over your balance.");
+    // Could ADD another require() for minimum balance if member has a credit contract
+    aDai.approve(address(pool), _amount);
+    pool.withdraw(address(dai), _amount, msg.sender);
   }
 }

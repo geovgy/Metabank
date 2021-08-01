@@ -1,5 +1,4 @@
 const { expect, assert } = require("chai");
-const { parse } = require("dotenv");
 require('dotenv').config();
 
 describe("SavingsPool", async () => {
@@ -89,8 +88,17 @@ describe("SavingsPool", async () => {
     assert(false);
   });
 
-  xit("Allows member to withdraw from savings", async () => {
+  it("Allows member to withdraw from savings", async () => {
+    const begDaiInWallet = await instance.daiBalance();
+    const begSavingsBalance = await instance.getMemberSavingsBalance();
 
+    await instance.withdrawFromSavings(ethers.utils.parseEther('100'));
+
+    const endSavingsBalance = await instance.getMemberSavingsBalance();
+    const endDaiInWallet = await instance.daiBalance();
+
+    expect(parseFloat(ethers.utils.formatEther(endSavingsBalance))).to.be.lessThan(parseFloat(ethers.utils.formatEther(begSavingsBalance)));
+    expect(parseFloat(ethers.utils.formatEther(endDaiInWallet))).to.be.greaterThan(parseFloat(ethers.utils.formatEther(begDaiInWallet)));
   });
 
   xit("Allows member to delete their membership", async () => {

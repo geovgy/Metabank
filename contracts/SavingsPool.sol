@@ -10,7 +10,7 @@ import "../interfaces/IUniswapV2Router02.sol";
 contract SavingsPool {
   mapping(address => bool) private isMember;
   mapping(address => uint) private individualAmount;
-  uint totalAmount;
+  uint public totalPrincipal;
   uint public memberCount;
 
   // Additional Variables Needed:
@@ -36,9 +36,19 @@ contract SavingsPool {
   }
 
   // TO DO: call lending pool to get savings amount + interest accrued
-  function getSavingsBalance() public view memberOnly returns (uint) {
+  function getMemberSavingsBalance() public view memberOnly returns (uint) {
+    
     console.log("msg.sender savings balance is ", individualAmount[msg.sender]/(10**18));
     return individualAmount[msg.sender];
+  }
+
+  function getTotalSavingsBalance() external view returns (uint) {
+    return aDai.balanceOf(address(this));
+  }
+
+  function getTotalInterestAccrued() external view returns (uint) {
+    uint totalSavings = aDai.balanceOf(address(this));
+    return totalSavings - totalPrincipal;
   }
 
   function createMembership() external {
@@ -61,7 +71,7 @@ contract SavingsPool {
     pool.deposit(address(dai), _amount, address(this), 0);
 
     individualAmount[msg.sender] += _amount;
-    totalAmount += _amount;
+    totalPrincipal += _amount;
     return true;
   }
 
@@ -71,7 +81,7 @@ contract SavingsPool {
     pool.deposit(address(dai), _amount, address(this), 0);
 
     individualAmount[msg.sender] = individualAmount[msg.sender] + _amount;
-    totalAmount = totalAmount + _amount;
+    totalPrincipal = totalPrincipal + _amount;
   }
 
   // Helper - to swap ETH to DAI for users

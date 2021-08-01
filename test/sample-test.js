@@ -24,14 +24,13 @@ describe("SavingsPool", async () => {
     expect(await instance.memberCount()).to.equal(1);
   });
 
-  xit("Swap ETH to DAI with router", async () => {
+  it("Swap ETH to DAI with router", async () => {
     const swapTx = await instance.swap({value: ethers.utils.parseEther('1')});
     await swapTx.wait();
 
     const daiAmount = await instance.daiBalance();
     
-    console.log(await ethers.utils.parseUnits(daiAmount));
-    expect(await ethers.utils.parseUnits(daiAmount)).to.be.greaterThan(0);
+    expect(parseFloat(ethers.utils.formatEther(daiAmount))).to.be.greaterThan(0);
   });
 
   it("Allows member to deposit DAI to savings", async () => {
@@ -44,22 +43,42 @@ describe("SavingsPool", async () => {
     deposit = ethers.utils.parseEther('100');
     await DAI.connect(user).approve(instance.address, deposit);
 
-    const initialAmount = await instance.getSavingsBalance();
+    const initialAmount = await instance.getMemberSavingsBalance();
     const depositTx = await instance.depositTokensToSavings(deposit);
     await depositTx.wait();
-    const newAmount = await instance.getSavingsBalance();
+    const newAmount = await instance.getMemberSavingsBalance();
     await instance.daiBalance();
 
     expect(parseFloat(ethers.utils.formatEther(newAmount))).to.be.greaterThan(parseFloat(ethers.utils.formatEther(initialAmount)));
   });
 
+  it("Able to retrieve total balance of savings pool", async () => {
+    let totalSavings = await instance.getTotalSavingsBalance();
+    totalSavings = parseFloat(ethers.utils.formatEther(totalSavings));
+    console.log(totalSavings);
+    expect(totalSavings).to.be.greaterThanOrEqual(parseFloat(ethers.utils.formatEther(deposit)));
+  });
+
+  it("Able to retrieve interest accrued in pool", async () => {
+    let totalSavings = await instance.getTotalSavingsBalance();
+    totalSavings = parseFloat(ethers.utils.formatEther(totalSavings));
+
+    let totalDeposit = await instance.totalPrincipal();
+    totalDeposit = parseFloat(ethers.utils.formatEther(totalDeposit));
+
+    let interestAccrued = await instance.getTotalInterestAccrued();
+    interestAccrued = parseFloat(ethers.utils.formatEther(interestAccrued));
+
+    expect(interestAccrued).to.equal(totalSavings - totalDeposit);
+  });
+
   xit("Allows member to deposit ETH (as DAI) to savings", async () => {
-    const initialAmount = await instance.getSavingsBalance();
+    const initialAmount = await instance.getMemberSavingsBalance();
     
     const depositTx = await instance.depositETHToSavings({value: '1000'});
     await depositTx.wait();
 
-    const newAmount = await instance.getSavingsBalance();
+    const newAmount = await instance.getMemberSavingsBalance();
     if (newAmount > initialAmount) {
       return assert(true);
     }
@@ -79,7 +98,7 @@ describe("SavingsPool", async () => {
     // const savings = await SavingsPool.deploy();
     // await savings.deployed();
 
-    expect(await instance.getSavingsBalance()).to.equal(deposit);
+    expect(await instance.getMemberSavingsBalance()).to.equal(deposit);
 
     // const setGreetingTx = await greeter.setGreeting("Hola, mundo!");
 

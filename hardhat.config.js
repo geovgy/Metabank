@@ -23,8 +23,8 @@ module.exports = {
     hardhat: {
       forking: {
         url: process.env.ALCHEMY_MAINNET_KEY,
-        blockNumber: 11095000,
-        timeout: 20000
+        blockNumber: 12936218,
+        timeout: 50000
       }
     }
   }

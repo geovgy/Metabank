@@ -37,9 +37,16 @@ contract SavingsPool {
 
   // TO DO: call lending pool to get savings amount + interest accrued
   function getMemberSavingsBalance() public view memberOnly returns (uint) {
+    // Get interest accrued as multiple of total deposited
+    uint interestX = aDai.balanceOf(address(this)) / totalPrincipal;
+    console.log("Interest multiple: ", interestX);
+
+    // Apply multiple to individual member's savings deposit
+    uint memberSavings = individualAmount[msg.sender] * interestX;
     
-    console.log("msg.sender savings balance is ", individualAmount[msg.sender]/(10**18));
-    return individualAmount[msg.sender];
+    console.log("msg.sender total deposit is ", individualAmount[msg.sender]);
+    console.log("msg.sender savings balance is ", memberSavings);
+    return memberSavings;
   }
 
   function getTotalSavingsBalance() external view returns (uint) {

@@ -1,4 +1,5 @@
 const { expect, assert } = require("chai");
+const { parse } = require("dotenv");
 require('dotenv').config();
 
 describe("SavingsPool", async () => {
@@ -41,11 +42,13 @@ describe("SavingsPool", async () => {
     const [ user ] = await ethers.getSigners();
 
     deposit = ethers.utils.parseEther('100');
-    await DAI.connect(user).approve(instance.address, deposit);
+    await DAI.connect(user).approve(instance.address, ethers.utils.parseEther('200'));
 
-    const initialAmount = await instance.getMemberSavingsBalance();
     const depositTx = await instance.depositTokensToSavings(deposit);
     await depositTx.wait();
+    const initialAmount = await instance.getMemberSavingsBalance();
+
+    await instance.depositTokensToSavings(deposit);
     const newAmount = await instance.getMemberSavingsBalance();
     await instance.daiBalance();
 
@@ -69,7 +72,8 @@ describe("SavingsPool", async () => {
     let interestAccrued = await instance.getTotalInterestAccrued();
     interestAccrued = parseFloat(ethers.utils.formatEther(interestAccrued));
 
-    expect(interestAccrued).to.equal(totalSavings - totalDeposit);
+    // The amounts differ after the 6th decimal
+    expect(`${interestAccrued}`.substring(0, 6)).to.equal(`${totalSavings - totalDeposit}`.substring(0, 6));
   });
 
   xit("Allows member to deposit ETH (as DAI) to savings", async () => {

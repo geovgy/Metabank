@@ -6,16 +6,34 @@ import "hardhat/console.sol";
 import "./interfaces/IERC20.sol";
 
 contract CreditSpenderFactory {
+    mapping(address => CreditSpender) creditContract;
+    mapping(address => bool) isCreditHolder;
     
     // To be calculated from Savings Pool, transaction history, etc.
-    function calculateCreditLimit(address _for) internal pure returns (uint) {
-
+    // DEV MODE ONLY
+    // TO DO: Add address _for parameter back in for calculating limit
+    function calculateCreditLimit() internal pure returns (uint) {
+        // Must inlcude real calculations!!!
+        // This number is only for testing CreditSpender contract
+        return 500*(10**18);
     }
 
+    // Should add functionality that only members can create a CreditSpender contract
+
     function createCreditSpender(address _asset) external {
-        uint limit = calculateCreditLimit(msg.sender);
+        require(!isCreditHolder[msg.sender], "You already have a CreditSpender contract");
+        uint limit = calculateCreditLimit();
         require(limit > 0, "You do not qualify");
-        new CreditSpender(msg.sender, IERC20(_asset), limit);
+        CreditSpender credit = new CreditSpender(msg.sender, IERC20(_asset), limit);
+        creditContract[msg.sender] = credit;
+        isCreditHolder[msg.sender] = true;
+        console.log("New CreditSpender contract deployed at: ", address(credit));
+    }
+
+    function getCreditSpenderAddress() external view returns (CreditSpender) {
+        require(isCreditHolder[msg.sender], "You do have a CreditSpender contract");
+        CreditSpender credit = creditContract[msg.sender];
+        return credit;
     }
 }
 

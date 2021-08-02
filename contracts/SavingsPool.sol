@@ -87,6 +87,14 @@ contract SavingsPool {
     totalPrincipal = totalPrincipal + _amount;
   }
 
+  function withdrawFromSavings(uint _amount) external memberOnly {
+    uint currentSavings = getMemberSavingsBalance();
+    require(_amount <= currentSavings, "You cannot withdraw an amount over your balance.");
+    // Could ADD another require() for minimum balance if member has a credit contract
+    aDai.approve(address(pool), _amount);
+    pool.withdraw(address(dai), _amount, msg.sender);
+  }
+
   // Helper - to swap ETH to DAI for users
   function swap() external payable {
     require(msg.value > 0, "There is no ETH in your deposit");
@@ -126,12 +134,4 @@ contract SavingsPool {
   //   // Then deposit DAI into lending pool
   //   _deposit(daiAmount[1]);
   // }
-
-  function withdrawFromSavings(uint _amount) external memberOnly {
-    uint currentSavings = getMemberSavingsBalance();
-    require(_amount <= currentSavings, "You cannot withdraw an amount over your balance.");
-    // Could ADD another require() for minimum balance if member has a credit contract
-    aDai.approve(address(pool), _amount);
-    pool.withdraw(address(dai), _amount, msg.sender);
-  }
 }

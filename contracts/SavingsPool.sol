@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 
-import "../interfaces/IERC20.sol";
-import "../interfaces/ILendingPool.sol";
-import "../interfaces/IUniswapV2Router02.sol";
+import "./interfaces/IERC20.sol";
+import "./interfaces/ILendingPool.sol";
+import "./interfaces/IUniswapV2Router02.sol";
 
 contract SavingsPool {
   mapping(address => bool) private isMember;

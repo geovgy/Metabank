@@ -1,5 +1,6 @@
 const { expect, assert } = require("chai");
 require('dotenv').config();
+const fs = require('fs');
 
 describe("Contracts", async () => {
   let savingsInstance;
@@ -125,6 +126,8 @@ describe("Contracts", async () => {
   });
 
   describe("Credit Spender Factory", function () {
+    let owner;
+
     it("Contract is successfully deployed", async () => {
       const CreditContract = await ethers.getContractFactory("CreditSpenderFactory");
       creditFactory = await CreditContract.deploy();
@@ -132,25 +135,45 @@ describe("Contracts", async () => {
   
       expect(creditFactory.address);
     });
-  });
-
-  describe("Credit Spender", function () {
-    let owner;
-
+  
     it("Factory can deploy new credit contract", async () => {
       const [ address1, address2 ] = await ethers.getSigners();
       owner = address2;
       await creditFactory.connect(owner).createCreditSpender(daiAddress);
       
       creditInstance = await creditFactory.connect(owner).getCreditSpenderAddress();
-      console.log(creditInstance);
-
+      console.log(creditFactory.address);
+  
       expect(creditInstance);
     });
-    
-    xit("Contract is not valid until initialized");
+  });
 
-    xit("Contract is valid");
+  describe("Credit Spender", function () {
+    let owner;
+    let recipient;
+    
+    it("Contract holder and issuer are the correct addresses", async () => {
+      const [ address1, address2 ] = await ethers.getSigners();
+      owner = address2;
+      recipient = address1;
+
+      const CreditSpender = await ethers.getContractFactory("CreditSpender");
+      creditInstance = await CreditSpender.attach(creditInstance);
+      await creditInstance.deployed();
+      
+      const holder = await creditInstance.holder();
+      const issuer = await creditInstance.issuer();
+      
+      expect(holder).to.equal(owner.address);
+      expect(issuer).to.equal(creditFactory.address);
+    });
+
+    it("Contract is not valid until initialized", async () => {
+      const validated = await creditInstance.valid();
+      expect(validated).to.be.true;
+    });
+
+    xit("Only the holder can spend tokens in contract");
 
     xit("Owner can spend with contract");
 

@@ -31,23 +31,33 @@ contract CreditSpenderFactory {
     }
 
     function getCreditSpenderAddress() external view returns (CreditSpender) {
-        require(isCreditHolder[msg.sender], "You do have a CreditSpender contract");
+        require(isCreditHolder[msg.sender], "You do not have a CreditSpender contract");
         CreditSpender credit = creditContract[msg.sender];
         return credit;
+    }
+
+    function initCreditSpender(CreditSpender _creditContract, address _onBehalfOf) external {
+        require(isCreditHolder[_onBehalfOf], "You do not have a CreditSpender contract");
+        // Must have a token balance
+
+        // Transfer tokens to deployed CreditSpender contract
+
+        // Initialize contract
+        _creditContract.init();
     }
 }
 
 contract CreditSpender {
     address public issuer;
-    address public owner;
-    bool valid;
+    address public holder;
+    bool public valid;
     uint creditLimit;
     uint creditOwed;
     IERC20 asset;
 
-    constructor(address _owner, IERC20 _asset, uint _limit) {
+    constructor(address _holder, IERC20 _asset, uint _limit) {
         issuer = msg.sender;
-        owner = _owner;
+        holder = _holder;
         asset = _asset;
         creditLimit = _limit;
     }
@@ -70,12 +80,12 @@ contract CreditSpender {
     }
 
     modifier ownerOnly {
-        require(msg.sender == owner, "You do not own this contract");
+        require(msg.sender == holder, "You do not own this contract");
         _;
     }
 
     // Initialize contract valid before use
-    function init() internal {
+    function init() external {
         require(!valid, "Contract has already been initialized");
         require(msg.sender == issuer, "Only issuer is allowed");
         require(asset.balanceOf(address(this)) == creditLimit, "Does not have the correct amount to initialize");

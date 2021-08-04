@@ -1,6 +1,5 @@
 const { expect, assert } = require("chai");
 require('dotenv').config();
-const fs = require('fs');
 
 describe("Contracts", async () => {
   let savingsInstance;

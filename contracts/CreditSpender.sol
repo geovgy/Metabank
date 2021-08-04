@@ -36,9 +36,9 @@ contract CreditSpenderFactory {
         return credit;
     }
 
-    function initCreditSpender(CreditSpender _creditContract, address _onBehalfOf) external {
-        require(isCreditHolder[_onBehalfOf], "You do not have a CreditSpender contract");
-        // Must have a token balance
+    function initCreditSpender(CreditSpender _creditContract) internal {
+        require(isCreditHolder[msg.sender], "You do not have a CreditSpender contract");
+        // Must have a token balance (borrowed from savings pool)
 
         // Transfer tokens to deployed CreditSpender contract
 

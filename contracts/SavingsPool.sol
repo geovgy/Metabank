@@ -13,13 +13,12 @@ contract SavingsPool {
   uint public totalPrincipal;
   uint public memberCount;
 
-  // Additional Variables Needed:
-  // ILendingPool address object
-  // IERC20 token addresses
-  // IERc20 aToken addresses (Aave specific)
+  // Aave
   ILendingPool pool;
   IERC20 constant dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
   IERC20 constant aDai = IERC20(0x028171bCA77440897B824Ca71D1c56caC55b68A3);
+
+  // Uniswap
   IUniswapV2Router02 constant uniswapV2Router = IUniswapV2Router02(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
 
   constructor(address _lendingPoolAddress) {
@@ -68,16 +67,6 @@ contract SavingsPool {
 
   }
 
-  // Helper - for DRY method (may delete in future)
-  function _deposit(uint _amount) private returns (bool) {
-    dai.approve(address(pool), _amount);
-    pool.deposit(address(dai), _amount, address(this), 0);
-
-    individualAmount[msg.sender] += _amount;
-    totalPrincipal += _amount;
-    return true;
-  }
-
   function depositTokensToSavings(uint _amount) external memberOnly {
     dai.transferFrom(msg.sender, address(this), _amount);
     dai.approve(address(pool), _amount);
@@ -93,6 +82,10 @@ contract SavingsPool {
     // Could ADD another require() for minimum balance if member has a credit contract
     aDai.approve(address(pool), _amount);
     pool.withdraw(address(dai), _amount, msg.sender);
+
+    // TO DO: reduce deposit amount from state variables
+    individualAmount[msg.sender] -= _amount;
+    totalPrincipal -= _amount;
   }
 
   // Helper - to swap ETH to DAI for users
@@ -116,22 +109,36 @@ contract SavingsPool {
     return dai.balanceOf(msg.sender);
   }
 
-  // function depositETHToSavings() external payable memberOnly {
-  //   require(msg.value > 0, "There is no ETH in your deposit");
-    
-  //   // First swap ETH to DAI
-  //   address[] memory path = new address[](2);
-  //   path[0] = uniswapV2Router.WETH();
-  //   path[1] = address(dai);
-  //   uint amountsOut = uniswapV2Router.getAmountsOut(msg.value, path)[1];
-  //   console.log(amountsOut);
-  //   console.log(block.timestamp);
-  //   uint[] memory daiAmount = uniswapV2Router.swapExactETHForTokens{
-  //     value: msg.value
-  //   }(0, path, address(this), block.timestamp);
-  //   console.log(daiAmount[0], daiAmount[1]);
+  function borrow(address _onBehalfOf, uint _amount) internal {
+    require(isMember[_onBehalfOf], "You are not a member");
+    // Require a max credit limit cap of 5000 DAI
+    require(_amount <= 5000*(10**18), "Request amount is over the max credit limit cap");
+    // Check member's savings account (ADD a lock mapping for amount they cannot withdraw)
+    uint savings = getMemberSavingsBalance();
+    // TEMPORARY: Set borrow limit to maximum 3x savings amount
+    require(_amount <= savings * 3, "You do not have enough collateral in savings");
 
-  //   // Then deposit DAI into lending pool
-  //   _deposit(daiAmount[1]);
-  // }
+    // Require CreditSpenderFacotry is legit
+    
+    // Check health of collateral pool
+    (
+      uint256 totalCollateralETH, 
+      uint256 totalDebtETH, 
+      uint256 availableBorrowsETH, 
+      uint256 currentLiquidationThreshold, 
+      uint256 ltv, 
+      uint256 healthFactor
+    ) = pool.getUserAccountData(address(this));
+    require(healthFactor > 3, "Health Factor is too low to borrow");
+    require(totalCollateralETH > totalDebtETH + _amount, "You cannot borrow that much");
+    // TO DO: Add a multiple of _amount to compare to availableBorrowETH for borrow allowance
+    require(availableBorrowsETH > _amount, "You cannot borrow that much");
+
+    // Borrow funds
+    aDai.approve(address(pool), _amount);
+    pool.borrow(address(dai), _amount, 1, 0, address(this));
+    // currently not transferring tokens to anyone
+    // TO DO: Change address!! Need to transfer borrowed tokens to CreditFactory
+    dai.transfer(address(0), _amount);
+  }
 }

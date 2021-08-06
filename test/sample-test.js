@@ -56,11 +56,34 @@ describe("Contracts", async () => {
   
       expect(parseFloat(ethers.utils.formatEther(newAmount))).to.be.greaterThan(parseFloat(ethers.utils.formatEther(initialAmount)));
     });
+
+    it("Allow multiple members to deposit DAI to savings", async () => {
+      const [, other1, other2, other3, other4, other5, other6] = await ethers.getSigners();
+      const otherUsers = [other1, other2, other3, other4, other5, other6];
+
+      for(let i=0; i < otherUsers.length; i++) {
+        await savingsInstance.connect(otherUsers[i]).createMembership();
+
+        const swapTx = await savingsInstance.connect(otherUsers[i]).swap({value: ethers.utils.parseEther('500')});
+        await swapTx.wait();
+        const balance = await savingsInstance.connect(otherUsers[i]).daiBalance();
+
+        await DAI.connect(otherUsers[i]).approve(savingsInstance.address, balance);
+    
+        const depositTx = await savingsInstance.connect(otherUsers[i]).depositTokensToSavings(balance);
+        await depositTx.wait();
+        const amount = await savingsInstance.connect(otherUsers[i]).getMemberSavingsBalance();
+
+        expect(parseFloat(ethers.utils.formatEther(amount))).to.equal(parseFloat(ethers.utils.formatEther(balance)));
+      }
+      // Add an expect or assert function to check pass
+      // See how much the total savings pool has now
+    });
   
     it("Able to retrieve total balance of savings pool", async () => {
       let totalSavings = await savingsInstance.getTotalSavingsBalance();
       totalSavings = parseFloat(ethers.utils.formatEther(totalSavings));
-      // console.log(totalSavings);
+      
       expect(totalSavings).to.be.greaterThanOrEqual(parseFloat(ethers.utils.formatEther(deposit)));
     });
   
@@ -122,12 +145,64 @@ describe("Contracts", async () => {
   
       // expect(await greeter.greet()).to.equal("Hola, mundo!");
     });
+
+    // Add additional tests for credit delegation and lending
+    it("Can generate a credit limit for the member", async () => {
+      const generateTx = await savingsInstance.generateCreditLimit();
+      await generateTx.wait();
+      let creditLimit = await savingsInstance.getCreditLimit();
+
+      creditLimit = parseFloat(ethers.utils.formatEther(creditLimit));
+      console.log(creditLimit);
+
+      expect(creditLimit).to.be.lessThanOrEqual(5000);
+      expect(creditLimit).to.be.greaterThan(0);
+    });
+
+    it("Can approve credit delegation to the member", async () => {
+      await savingsInstance.approveCreditHolder();
+      const approvedAmount = await savingsInstance.creditAllowance();
+      const creditLimit = await savingsInstance.getCreditLimit();
+
+      expect(ethers.utils.formatEther(approvedAmount)).to.equal(ethers.utils.formatEther(creditLimit));
+    });
+
+    it("Member can borrow credit multiple times within allowance", async () => {
+      const balanceBefore = await savingsInstance.usdcBalance();
+      await savingsInstance.borrowCredit(100);
+      const balanceAfter = await savingsInstance.usdcBalance();
+
+      expect(parseFloat(ethers.utils.formatEther(balanceAfter))).to.be.greaterThan(parseFloat(ethers.utils.formatEther(balanceBefore)));
+    });
+
+    xit("Member cannot borrow beyond credit limit", async () => {
+      
+    });
+
+    // ISSUE: Unable to repay credit lender???
+    it("Member can repay delegator and reduce amount owed", async () => {
+      let creditOutstanding1 = await savingsInstance.getCreditLimit();
+      creditOutstanding1 = parseFloat(ethers.utils.formatEther(creditOutstanding1));
+      const amount = 100 * (10**6);
+
+      const [ borrower ] = await ethers.getSigners();
+      const USDC = new ethers.Contract("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", erc20ABI);
+      USDC.connect(borrower).approve(savingsInstance.address, amount);
+
+      await savingsInstance.repayCredit(amount);
+      let creditOutstanding2 = await savingsInstance.getCreditLimit();
+      creditOutstanding2 = parseFloat(ethers.utils.formatEther(creditOutstanding2));
+
+      expect(creditOutstanding2).to.be.lessThan(creditOutstanding1);
+    });
+
+    xit("More credit is issued equal to the amount member repaid");
   });
 
   describe("Credit Spender Factory", function () {
     let owner;
 
-    it("Contract is successfully deployed", async () => {
+    xit("Contract is successfully deployed", async () => {
       const CreditContract = await ethers.getContractFactory("CreditSpenderFactory");
       creditFactory = await CreditContract.deploy();
       await creditFactory.deployed();
@@ -135,7 +210,7 @@ describe("Contracts", async () => {
       expect(creditFactory.address);
     });
   
-    it("Factory can deploy new credit contract", async () => {
+    xit("Factory can deploy new credit contract", async () => {
       const [ address1, address2 ] = await ethers.getSigners();
       owner = address2;
       await creditFactory.connect(owner).createCreditSpender(daiAddress);
@@ -151,7 +226,7 @@ describe("Contracts", async () => {
     let owner;
     let recipient;
     
-    it("Contract holder and issuer are the correct addresses", async () => {
+    xit("Contract holder and issuer are the correct addresses", async () => {
       const [ address1, address2 ] = await ethers.getSigners();
       owner = address2;
       recipient = address1;
@@ -167,7 +242,7 @@ describe("Contracts", async () => {
       expect(issuer).to.equal(creditFactory.address);
     });
 
-    it("Contract is not valid until initialized", async () => {
+    xit("Contract is not valid until initialized", async () => {
       const validated = await creditInstance.valid();
       expect(validated).to.be.true;
     });

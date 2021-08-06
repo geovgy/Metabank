@@ -1,0 +1,66 @@
+{
+  "name": "metismenujs",
+  "version": "1.3.0",
+  "description": "MetisMenu: Collapsible menu plugin with Vanilla-JS",
+  "main": "dist/metismenujs.js",
+  "module": "dist/metismenujs.esm.js",
+  "browser": "dist/metismenujs.min.js",
+  "unpkg": "dist/metismenujs.min.js",
+  "jsdelivr": "dist/metismenujs.min.js",
+  "typings": "dist/types/index.d.ts",
+  "sass": "scss/metismenujs.scss",
+  "style": "dist/metismenujs.css",
+  "files": [
+    "dist",
+    "src",
+    "scss"
+  ],
+  "scripts": {
+    "js:dev": "rollup -c -w",
+    "js:prod": "rollup -c",
+    "js:umd:min": "terser --compress typeofs=false --mangle --comments \"/^!/\" --source-map \"content=dist/metismenujs.js.map,includeSources,url=metismenujs.min.js.map\" --output dist/metismenujs.min.js dist/metismenujs.js",
+    "js:esm:min": "terser --compress typeofs=false --mangle --comments \"/^!/\" --source-map \"content=dist/metismenujs.esm.js.map,includeSources,url=metismenujs.esm.min.js.map\" --output dist/metismenujs.esm.min.js dist/metismenujs.esm.js",
+    "css:dev": "sass scss:docs/assets/css",
+    "css:prod": "sass scss:dist",
+    "css:min": "sass scss/metismenujs.scss dist/metismenujs.min.css -s compressed",
+    "build": "npm run js:prod && npm run js:umd:min && npm run js:esm:min && npm run css:prod && npm run css:min",
+    "test": "eslint src/*.js",
+    "tsc": "tsc -p tsconfig.json --declaration --declarationDir dist/types --outDir dist/modules"
+  },
+  "engines": {
+    "node": ">=8"
+  },
+  "repository": "onokumus/metismenujs",
+  "keywords": [
+    "accordion",
+    "menu",
+    "metis",
+    "metisMenu",
+    "toggle"
+  ],
+  "author": "Osman Nuri Okumus <onokumus@gmail.com> (https://github.com/onokumus)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/onokumus/metismenujs/issues"
+  },
+  "homepage": "https://github.com/onokumus/metismenujs#readme",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@rollup/plugin-typescript": "^8.2.1",
+    "@typescript-eslint/eslint-plugin": "^4.23.0",
+    "@typescript-eslint/parser": "^4.23.0",
+    "eslint": "^7.26.0",
+    "eslint-config-airbnb-typescript": "^12.3.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.23.2",
+    "prettier": "^2.3.0",
+    "rollup": "^2.48.0",
+    "sass": "^1.32.13",
+    "terser": "^5.7.0",
+    "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "tslib": "^2.2.0"
+  }
+}

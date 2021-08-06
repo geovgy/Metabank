@@ -1,0 +1,154 @@
+@import './icons.scss';
+
+// Dark Theme
+// @import "./bootstrap-dark.scss";
+// @import "./app-dark.scss";
+
+// RTL Mode
+// @import "./bootstrap.scss";
+// @import "./app-rtl.scss";
+
+// Light Theme
+@import './bootstrap.scss';
+@import './app.scss';
+
+#sidebar-menu {
+  ul {
+    li {
+      a {
+        i {
+          min-width: 2rem;
+        }
+      }
+    }
+  }
+}
+.noti-icon .badge {
+  left: 23px;
+}
+.dataTables_filter,
+.dataTables_paginate {
+  float: right;
+}
+.rdw-editor-main {
+  border: 1px solid $gray-300;
+  height: 239px;
+}
+.dz-message {
+  text-align: center;
+  padding: 30px;
+}
+// kanban board
+.fcYNFc,
+.sc-AxmLO.gmtmqV {
+  background-color: $card-bg !important;
+  margin: 0 20px 0 0 !important;
+}
+.task-box {
+  border: 1px solid $border-color;
+}
+.react-datepicker-wrapper {
+  width: 100% !important;
+}
+.ReactModal__Overlay {
+  z-index: 1001 !important;
+}
+.chat-conversation .right .conversation-list {
+  margin-right: 15px;
+}
+.external-event {
+  &:hover {
+    cursor: pointer;
+  }
+}
+a:hover {
+  cursor: pointer;
+}
+.rating-container {
+  background-color: transparent !important;
+}
+.input-group-append {
+  z-index: 0;
+}
+.input-color {
+  color: $input-color !important;
+}
+.sketch-picker {
+  position: absolute;
+  z-index: 1;
+}
+.rangeslider__fill {
+  background-color: $primary !important;
+}
+
+label.radio {
+  display: block;
+  padding: 15px;
+  margin-bottom: 20px;
+  position: relative;
+  text-align: center;
+  font-size: 20px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  + .radio {
+    text-align: center;
+    margin-left: 0;
+  }
+  input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+  span.checkmark {
+    position: absolute;
+    text-align: center;
+    margin-top: 18px;
+    margin-left: 180px;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: #eee;
+  }
+
+  &:hover input ~ span.checkmark {
+    background-color: #ccc;
+  }
+  input:checked ~ span.checkmark {
+    background-color: #2196f3;
+  }
+
+  span.checkmark:after {
+    left: 9px;
+    top: 5px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+  }
+}
+
+span.checkmark:after {
+  content: '';
+  position: absolute;
+  display: none;
+}
+
+label.radio input:checked ~ span.checkmark:after {
+  display: block;
+}
+
+ul.list-unstyled {
+  li.disabled {
+    a {
+      pointer-events: none;
+    }
+  }
+}

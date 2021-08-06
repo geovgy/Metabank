@@ -1,0 +1,45 @@
+{
+  "name": "region",
+  "version": "2.1.2",
+  "description": "A helper to work with rectangular regions in the DOM",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test",
+    "test-w": "make test-w",
+    "test-debug": "mocha --debug-brk",
+    "dist": "./node_modules/.bin/webpack --progress --colors --config dist.config.js",
+    "dist.min": "./node_modules/.bin/webpack --progress --colors --optimize-minimize --optimize-occurence-order --optimize-dedupe --config dist.min.config.js",
+    "build": "npm run dist && npm run dist.min"
+  },
+  "devDependencies": {
+    "mocha": "~1.21.0",
+    "should": "~4.0.4",
+    "webpack": "^1.4.13",
+    "webpack-dev-server": "^1.6.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/radubrehar/region.git"
+  },
+  "keywords": [
+    "region",
+    "dom",
+    "rectangle",
+    "size",
+    "area",
+    "intersection",
+    "element",
+    "html",
+    "coordinates"
+  ],
+  "author": "Radu Brehar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/radubrehar/region/issues"
+  },
+  "dependencies": {
+    "hasown": "~1.x.x",
+    "newify": "^1.1.9",
+    "object-assign": "^2.0.0"
+  }
+}

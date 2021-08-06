@@ -184,6 +184,7 @@ contract SavingsPool {
     uint creditRemaining = creditLimit[msg.sender] - creditToRepay[msg.sender];
     require(creditRemaining >= _amount, "You do not have enough credit available");
     uint usdcAmount = _amount * (10**6);
+    usdc.approve(address(pool), usdcAmount);
     pool.borrow(address(usdc), usdcAmount, 1, 0, address(this));
     usdc.transfer(msg.sender, _amount);
     creditToRepay[msg.sender] += _amount;

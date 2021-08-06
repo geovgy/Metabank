@@ -180,16 +180,17 @@ describe("Contracts", async () => {
     });
 
     // ISSUE: Unable to repay credit lender???
+    // USDC balance doesn't change
     it("Member can repay delegator and reduce amount owed", async () => {
       let creditOutstanding1 = await savingsInstance.getCreditLimit();
       creditOutstanding1 = parseFloat(ethers.utils.formatEther(creditOutstanding1));
-      const amount = 100 * (10**6);
+      const amount = '100';
 
       const [ borrower ] = await ethers.getSigners();
       const USDC = new ethers.Contract("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", erc20ABI);
       USDC.connect(borrower).approve(savingsInstance.address, amount);
 
-      await savingsInstance.repayCredit(amount);
+      await savingsInstance.repayCredit(ethers.utils.parseEther(amount));
       let creditOutstanding2 = await savingsInstance.getCreditLimit();
       creditOutstanding2 = parseFloat(ethers.utils.formatEther(creditOutstanding2));
 

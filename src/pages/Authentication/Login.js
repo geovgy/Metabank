@@ -70,7 +70,7 @@ const Login = (props) => {
                                                         <i class="mdi mdi-bitcoin font-size-24 text-warning align-middle mr-2"></i>
                                                         <span>
                                                             {/* Total Balance : <b>{`$${props.orderStore.state.sessionData.totalBalance}`} </b> */}
-                                                             Login with Metamask
+                                                            Login with Metamask
 
                                                         </span>
                                                     </div>
@@ -92,14 +92,14 @@ const Login = (props) => {
 
 
 
-                                        <div className="mt-4">
+                                        {/* <div className="mt-4">
                                             <button
                                                 className="btn btn-primary btn-block waves-effect waves-light"
                                                 type="submit"
                                             >
                                                 Login
                                             </button>
-                                        </div>
+                                        </div> */}
                                         <div class="mt-4 text-center"><h5 class="font-size-14 mb-3">
                                             Sign in using
                                         </h5>
@@ -110,6 +110,7 @@ const Login = (props) => {
                                                         </i>
                                                     </a>
                                                 </li><li class="list-inline-item"><a class="social-list-item bg-info text-white border-info" href="/pages-Login-2"><i class="mdi mdi-twitter"></i></a></li><li class="list-inline-item"><a class="social-list-item bg-danger text-white border-danger" href="/pages-Login-2"><i class="mdi mdi-google"></i></a></li></ul></div>
+                                        
                                         <div className="mt-4 text-center">
                                             <p className="mb-0">
                                                 By Logining you agree to the Metabank{" "}

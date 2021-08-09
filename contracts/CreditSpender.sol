@@ -4,62 +4,27 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 
 import "./interfaces/IERC20.sol";
-
-contract CreditSpenderFactory {
-    mapping(address => CreditSpender) creditContract;
-    mapping(address => bool) isCreditHolder;
-    
-    // To be calculated from Savings Pool, transaction history, etc.
-    // DEV MODE ONLY
-    // TO DO: Add address _for parameter back in for calculating limit
-    function calculateCreditLimit() internal pure returns (uint) {
-        // Must inlcude real calculations!!!
-        // This number is only for testing CreditSpender contract
-        return 500*(10**18);
-    }
-
-    // Should add functionality that only members can create a CreditSpender contract
-
-    function createCreditSpender(address _asset) external {
-        require(!isCreditHolder[msg.sender], "You already have a CreditSpender contract");
-        uint limit = calculateCreditLimit();
-        require(limit > 0, "You do not qualify");
-        CreditSpender credit = new CreditSpender(msg.sender, IERC20(_asset), limit);
-        creditContract[msg.sender] = credit;
-        isCreditHolder[msg.sender] = true;
-        console.log("New CreditSpender contract deployed at: ", address(credit));
-    }
-
-    function getCreditSpenderAddress() external view returns (CreditSpender) {
-        require(isCreditHolder[msg.sender], "You do not have a CreditSpender contract");
-        CreditSpender credit = creditContract[msg.sender];
-        return credit;
-    }
-
-    function initCreditSpender(CreditSpender _creditContract) internal {
-        require(isCreditHolder[msg.sender], "You do not have a CreditSpender contract");
-        // Must have a token balance (borrowed from savings pool)
-
-        // Transfer tokens to deployed CreditSpender contract
-
-        // Initialize contract
-        _creditContract.init();
-    }
-}
+import "./interfaces/ILendingPool.sol";
+import "./interfaces/ICreditDelegationToken.sol";
 
 contract CreditSpender {
     address public issuer;
     address public holder;
     bool public valid;
-    uint creditLimit;
+    uint public creditLimit;
     uint creditOwed;
-    IERC20 asset;
 
-    constructor(address _holder, IERC20 _asset, uint _limit) {
+    // Aave
+    ILendingPool pool;
+    IProtocolDataProvider constant aaveDataProvider = IProtocolDataProvider(0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d);
+    IERC20 constant usdc = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+    IERC20 constant dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+
+    constructor(address _holder, uint _limit, ILendingPool _pool) {
         issuer = msg.sender;
         holder = _holder;
-        asset = _asset;
         creditLimit = _limit;
+        pool = _pool;
     }
 
     event Spent(
@@ -84,43 +49,54 @@ contract CreditSpender {
         _;
     }
 
+    modifier approvedViewersOnly {
+        require(msg.sender == holder || msg.sender == issuer, "You are not approved");
+        _;
+    }
+
     // Initialize contract valid before use
     function init() external {
         require(!valid, "Contract has already been initialized");
         require(msg.sender == issuer, "Only issuer is allowed");
-        require(asset.balanceOf(address(this)) == creditLimit, "Does not have the correct amount to initialize");
         valid = true;
+    }
+
+    function creditAllowance() public view returns (uint) {
+        (, address stableDebtTokenAddress,) = aaveDataProvider.getReserveTokensAddresses(address(usdc));
+        return ICreditDelegationToken(stableDebtTokenAddress).borrowAllowance(issuer, address(this));
     }
 
     // Spend available credit
     function spend(uint _amount, address _recipient) external validOnly ownerOnly {
-        uint balance = creditRemaining();
-        require(balance >= _amount, "You do not have enough remaining credit");
-        asset.transfer(_recipient, _amount);
+        // uint balance = creditRemaining();
+        // require(balance >= _amount, "You do not have enough remaining credit");
+        usdc.approve(address(pool), _amount);
+        pool.borrow(address(usdc), _amount, 1, 0, issuer);
+        usdc.transfer(_recipient, _amount);
         creditOwed += _amount;
         emit Spent(_amount, _recipient, block.timestamp);
     }
 
     // Repay outstanding credit
     function repay(uint _amount) external validOnly ownerOnly {
-        asset.transferFrom(msg.sender, address(this), _amount);
-        creditOwed -= _amount;
+        require(creditOwed > 0, "There is no outstanding credit owed.");
+        if(_amount > creditOwed) {
+            usdc.transferFrom(msg.sender, address(this), creditOwed);
+            usdc.approve(address(pool), creditOwed);
+            pool.repay(address(usdc), creditOwed, 1, issuer);
+            creditOwed = 0;
+        } else {
+            usdc.transferFrom(msg.sender, address(this), _amount);
+            usdc.approve(address(pool), _amount);
+            pool.repay(address(usdc), _amount, 1, issuer);
+            creditOwed -= _amount;
+        }
         emit Repaid(_amount, msg.sender, block.timestamp);
     }
 
-    // Get available credit
-    function creditRemaining() public view ownerOnly returns (uint) {
-        return asset.balanceOf(address(this));
-    }
-
     // Get outstanding credit owed
-    function creditOutstanding() public view ownerOnly returns (uint owed) {
-        uint balance = asset.balanceOf(address(this));
-        if (balance >= creditLimit) {
-            owed = 0;
-        } else {
-            owed = creditLimit - balance;
-        }
+    function creditOutstanding() public view approvedViewersOnly returns (uint) {
+        return creditOwed;
     }
 
     // Destroy contract (if compromised)

@@ -8,6 +8,8 @@ import "./interfaces/ILendingPool.sol";
 import "./interfaces/IUniswapV2Router02.sol";
 import "./interfaces/ICreditDelegationToken.sol";
 
+import "./CreditSpender.sol";
+
 contract SavingsPool {
   mapping(address => bool) private isMember;
   mapping(address => uint) private individualAmount;
@@ -20,6 +22,7 @@ contract SavingsPool {
   uint public immutable maxCreditLimit = 3000*(10**18);
   mapping(address => uint) private creditToRepay;
   uint public totalCreditDelegated;
+  mapping(address => CreditSpender) creditHolder;
 
   // Aave
   ILendingPool pool;
@@ -83,7 +86,12 @@ contract SavingsPool {
 
   function withdrawFromSavings(uint _amount) external memberOnly {
     // Member can only withdraw savings if no outstanding credit is owed
-    require(creditToRepay[msg.sender] == 0, "You cannot withdraw due to outstanding debts");
+    bool hasCreditSpender = isCreditHolder[msg.sender];
+    if(hasCreditSpender) {
+      CreditSpender credit = creditHolder[msg.sender];
+      uint debt = credit.creditOutstanding();
+      require(debt == 0, "You cannot withdraw due to outstanding debts");
+    }
     uint currentSavings = getMemberSavingsBalance();
     require(_amount <= currentSavings, "You cannot withdraw an amount over your balance.");
 
@@ -95,34 +103,22 @@ contract SavingsPool {
     totalPrincipal -= _amount;
   }
 
-  // HELPER - to swap ETH to DAI for users
-  function swap() external payable {
-    require(msg.value > 0, "There is no ETH in your deposit");
-    
-    // First swap ETH to DAI
-    address[] memory path = new address[](2);
-    path[0] = uniswapV2Router.WETH();
-    path[1] = address(dai);
-    // uint amountsOut = uniswapV2Router.getAmountsOut(msg.value, path)[1];
-    uniswapV2Router.swapExactETHForTokens{
-      value: msg.value
-    }(0, path, msg.sender, block.timestamp);
-  }
+  // *************************************************************
 
-  // HELPER - FOR TESTING PURPOSES ONLY (Delete before deploying)
-  function daiBalance() external view returns (uint) {
-    // uint balance = dai.balanceOf(msg.sender);
-    // console.log("msg.sender DAI balance is ", balance);
-    return dai.balanceOf(msg.sender);
-  }
+  //    CREDIT LENDING AND REPAYING
+  //    1. Generate a credit limit for user
+  //    2. Deploy a CreditSpender contract for user
+  //    3. Approve the credit limit to user's CreditSpender contract
+  //    4. Initialize the CreditSpender contract for valid use
 
-  // HELPER - FOR TESTING PURPOSES ONLY (Delete before deploying)
-  function usdcBalance() external view returns (uint) {
-    return usdc.balanceOf(msg.sender);
-  }
+  //    Functions called from CreditSpender contract
+  //    1. Borrow from pool on behalf of SavingsPool
+  //    2. Repay pool on behalf of SavingsPool
+  
+  // *************************************************************
 
   // Calculate maximum amount that member is approved to borrow
-  function generateCreditLimit() public {
+  function generateCreditLimit() public memberOnly {
     // Require the requester is a member
     require(isMember[msg.sender], "You are not a member");
     require(!isCreditHolder[msg.sender], "You are already a credit holder");
@@ -156,55 +152,81 @@ contract SavingsPool {
     }
     // require(availableBorrowsETH >= proposedLimit[0], "Unable to lend money at this time");
     // require(totalCollateralETH > totalDebtETH + proposedLimit[0], "You cannot borrow that much");
-    creditLimit[msg.sender] = proposedLimit[0];
+    creditLimit[msg.sender] = proposedLimit[0]/(10**12);
   }
 
   function getCreditLimit() external view returns (uint) {
     return creditLimit[msg.sender];
+  }
+  
+  function createCreditSpender() external memberOnly {
+    require(!isCreditHolder[msg.sender], "You already have a CreditSpender contract");
+    require(creditLimit[msg.sender] > 0, "You do not qualify");
+    CreditSpender credit = new CreditSpender(msg.sender, creditLimit[msg.sender], pool);
+    creditHolder[msg.sender] = credit;
+    isCreditHolder[msg.sender] = true;
+    console.log("New CreditSpender contract deployed at: ", address(credit));
   }
 
   // Use credit delegation approval for calculated credit limit amount
   function approveCreditHolder() public {
     require(creditLimit[msg.sender] > 0, "Does not have a credit limit");
     // Should probably require another health check
-    (, address stableDebtTokenAddress,) = aaveDataProvider.getReserveTokensAddresses(address(dai));
-    ICreditDelegationToken(stableDebtTokenAddress).approveDelegation(msg.sender, creditLimit[msg.sender]);
+    CreditSpender creditSpender = creditHolder[msg.sender];
+    (, address stableDebtTokenAddress,) = aaveDataProvider.getReserveTokensAddresses(address(usdc));
+    ICreditDelegationToken(stableDebtTokenAddress).approveDelegation(address(creditSpender), creditLimit[msg.sender]);
     isCreditHolder[msg.sender] = true;
   }
 
-  function creditAllowance() public view returns (uint) {
+  function creditAllowance(address _creditSpenderAddress) public view returns (uint) {
     require(creditLimit[msg.sender] > 0, "Does not have a credit limit");
-    (, address stableDebtTokenAddress,) = aaveDataProvider.getReserveTokensAddresses(address(dai));
-    return ICreditDelegationToken(stableDebtTokenAddress).borrowAllowance(address(this), msg.sender);
+    require(isCreditHolder[msg.sender], "Must have a CreditSpender first");
+    (, address stableDebtTokenAddress,) = aaveDataProvider.getReserveTokensAddresses(address(usdc));
+    return ICreditDelegationToken(stableDebtTokenAddress).borrowAllowance(address(this), _creditSpenderAddress);
   }
 
-  // Used every time member wants to purchase with credit until limit is reached
-  function borrowCredit(uint _amount) public memberOnly {
-    require(isCreditHolder[msg.sender], "You are not a credit holder");
-    uint creditRemaining = creditLimit[msg.sender] - creditToRepay[msg.sender];
-    require(creditRemaining >= _amount, "You do not have enough credit available");
-    uint usdcAmount = _amount * (10**6);
-    usdc.approve(address(pool), usdcAmount);
-    pool.borrow(address(usdc), usdcAmount, 1, 0, address(this));
-    usdc.transfer(msg.sender, _amount);
-    creditToRepay[msg.sender] += _amount;
-    totalCreditDelegated += _amount;
+  function getCreditSpenderAddress() external view returns (address) {
+    require(isCreditHolder[msg.sender], "You do not have a CreditSpender contract");
+    CreditSpender credit = creditHolder[msg.sender];
+    return address(credit);
   }
 
-  // Allow member to repay credit to this contract (delegator)
-  // *** Check SafeERC20 for low-level call issues ***
-  function repayCredit(uint _amount) public {
-    uint leftover;
-    if (_amount > creditToRepay[msg.sender]) {
-      leftover = _amount - creditToRepay[msg.sender];
-      pool.repay(address(usdc), creditToRepay[msg.sender], 1, address(this));
-      creditToRepay[msg.sender] = 0;
-      totalCreditDelegated -= creditToRepay[msg.sender];
-      // TO DO: swap the rest to DAI and deposit to member's savings account
-    } else {
-      pool.repay(address(usdc), _amount, 1, address(this));
-      creditToRepay[msg.sender] -= _amount;
-      totalCreditDelegated -= _amount;
-    }
+  // REVISE: Approve credit to CreditSpender
+  function initCreditSpender() external {
+    require(isCreditHolder[msg.sender], "You do not have a CreditSpender contract");
+    CreditSpender creditSpender = creditHolder[msg.sender];
+    
+    uint allowance = creditAllowance(address(creditSpender));
+    require(allowance > 0 && allowance == creditLimit[msg.sender]);
+
+    creditSpender.init();
   }
+
+  // *************************************************************************
+  // HELPER - to swap ETH to DAI for users
+  function swap() external payable {
+    require(msg.value > 0, "There is no ETH in your deposit");
+    
+    // First swap ETH to DAI
+    address[] memory path = new address[](2);
+    path[0] = uniswapV2Router.WETH();
+    path[1] = address(dai);
+    // uint amountsOut = uniswapV2Router.getAmountsOut(msg.value, path)[1];
+    uniswapV2Router.swapExactETHForTokens{
+      value: msg.value
+    }(0, path, msg.sender, block.timestamp);
+  }
+
+  // HELPER - FOR TESTING PURPOSES ONLY (Delete before deploying)
+  function daiBalance() external view returns (uint) {
+    // uint balance = dai.balanceOf(msg.sender);
+    // console.log("msg.sender DAI balance is ", balance);
+    return dai.balanceOf(msg.sender);
+  }
+
+  // HELPER - FOR TESTING PURPOSES ONLY (Delete before deploying)
+  function usdcBalance() external view returns (uint) {
+    return usdc.balanceOf(msg.sender);
+  }
+  // *************************************************************************
 }

@@ -3,12 +3,13 @@ import React from 'react';
 import { AvForm, AvField } from "availity-reactstrap-validation";
 import { Link } from "react-router-dom";
 
-import { Row, Col, CardBody, Card, Container } from "reactstrap";
+import { Row, Col, CardBody, Card, Container, Label, Input } from "reactstrap";
 
 // import images
 import profileImg from "../../assets/images/profile-img.png";
 import logoImg from "../../assets/images/logo.svg";
 import authbg from "../../assets/images/bg-auth-overlay.png";
+import metamaskIc from "../../assets/images/metamask.svg"
 
 const Login = (props) => {
 
@@ -65,52 +66,52 @@ const Login = (props) => {
 
                                         <div className="form-group">
                                             <Row>
-                                                <Col lg="6">
-                                                    <div class="card-radio-custom ">
-                                                        <i class="mdi mdi-bitcoin font-size-24 text-warning align-middle mr-2"></i>
-                                                        <span>
-                                                            {/* Total Balance : <b>{`$${props.orderStore.state.sessionData.totalBalance}`} </b> */}
-                                                            Login with Metamask
+                                                <Col xl="6" sm="12">
+                                                    <div className="mb-3">
+                                                        <Label className="card-radio-label mb-2">
+                                                            <Input type="radio" name="currency" id="buycurrencyoption1" className="card-radio-input" defaultChecked readOnly />
 
-                                                        </span>
+                                                            <div className="card-radio" style={{ paddingTop: '25px', paddingBottom: '25px' }}>
+                                                                <div>
+                                                                    <img style={{ marginRight: '10px' }} src={metamaskIc} alt="" className="rounded-circle" height="34" />
+                                                                    <span>Meta Mask</span>
+                                                                </div>
+                                                            </div>
+                                                        </Label>
+
+
                                                     </div>
-                                                    <div className="mb-4"></div>
                                                 </Col>
-                                                <Col lg="5">
-                                                    <div class="card-radio-custom ">
-                                                        <i class="mdi mdi-bitcoin font-size-24 text-warning align-middle mr-2"></i>
-                                                        <span>
-                                                            {/* Total Balance : <b>{`$${props.orderStore.state.sessionData.totalBalance}`} </b> */}
-                                                            Login with Metamask
+                                                <Col xl="6" sm="12">
+                                                <div className="mb-3">
+                                                        <Label className="card-radio-label mb-2">
+                                                            <Input type="radio" name="currency" id="buycurrencyoption1" className="card-radio-input" defaultChecked readOnly />
 
-                                                        </span>
+                                                            <div className="card-radio" style={{ paddingTop: '25px', paddingBottom: '25px' }}>
+                                                                <div>
+                                                                    <img style={{ marginRight: '5px' }} src={metamaskIc} alt="" className="rounded-circle" height="34" />
+                                                                    <span>Wallet Connect</span>
+                                                                </div>
+                                                            </div>
+                                                        </Label>
+
+
                                                     </div>
                                                     <div className="mb-4"></div>
                                                 </Col>
                                             </Row>
+                                            <div className="mt-4">
+                        <button
+                          className="btn btn-primary btn-block waves-effect waves-light"
+                          type="submit"
+                        >
+                          Login
+                        </button>
+                      </div>
                                         </div>
 
 
 
-                                        {/* <div className="mt-4">
-                                            <button
-                                                className="btn btn-primary btn-block waves-effect waves-light"
-                                                type="submit"
-                                            >
-                                                Login
-                                            </button>
-                                        </div> */}
-                                        <div class="mt-4 text-center"><h5 class="font-size-14 mb-3">
-                                            Sign in using
-                                        </h5>
-                                            <ul class="list-inline">
-                                                <li class="list-inline-item">
-                                                    <a class="social-list-item bg-primary text-white border-primary" href="/pages-Login-2">
-                                                        <i class="mdi mdi-facebook">
-                                                        </i>
-                                                    </a>
-                                                </li><li class="list-inline-item"><a class="social-list-item bg-info text-white border-info" href="/pages-Login-2"><i class="mdi mdi-twitter"></i></a></li><li class="list-inline-item"><a class="social-list-item bg-danger text-white border-danger" href="/pages-Login-2"><i class="mdi mdi-google"></i></a></li></ul></div>
-                                        
                                         <div className="mt-4 text-center">
                                             <p className="mb-0">
                                                 By Logining you agree to the Metabank{" "}
@@ -124,16 +125,23 @@ const Login = (props) => {
                                 <div className="mt-5 text-center">
 
                                     <p>
-                                        Already have an account ?{" "}
+                                        Don't have an account ?{" "}
                                         <Link
                                             to="/login"
                                             className="font-weight-medium text-primary"
                                         >
                                             {" "}
-                                            Login
+                                            Register
                                         </Link>{" "}
                                     </p>
                                 </div>
+                                <div className="mb-4"></div>
+                                <div className="mb-4"></div>
+                                <div className="mb-4"></div>
+                                <div className="mb-4"></div>
+                                <div className="mb-4"></div>
+                                <div className="mb-4"></div>
+
 
                             </Row>
                         </Container>

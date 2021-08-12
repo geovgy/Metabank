@@ -5,9 +5,10 @@ import { useContext } from 'react';
 import { Web3Context } from '../components/Web3/Web3Context';
 
 import NavBar from '../components/HorizontalLayout/Navbar';
+import MetaMask from '../components/Web3/MetaMask';
 
 export default function Home() {
-  const { contract } = useContext(Web3Context);
+  
   return (
     <div className={styles.container}>
       <Head>
@@ -16,16 +17,13 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <NavBar />
+      <MetaMask />
 
-      {
-        contract &&
-        <main className={styles.main}>
-          <h1 className={styles.title}>
-            Welcome to Metabank
-          </h1>
-        </main>
-      }
+      <main className={styles.main}>
+        <h1 className={styles.title}>
+          Welcome to Metabank
+        </h1>
+      </main>
 
       <footer className={styles.footer}>
         

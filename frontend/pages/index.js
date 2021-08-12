@@ -65,9 +65,7 @@ export default function Home() {
       });
       signer = provider.getSigner(account);
     } else {
-      const provider = new ethers.providers.JsonRpcProvider(
-        process.env.ALCHEMY_MAINNET_KEY
-      );
+      const provider = new ethers.providers.JsonRpcProvider();
       signer = provider.getSigner()
     }
 

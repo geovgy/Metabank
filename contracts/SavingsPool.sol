@@ -45,7 +45,10 @@ contract SavingsPool {
 
   function getMemberSavingsBalance() public view memberOnly returns (uint) {
     // Get interest accrued as multiple (1 + xx%) of total deposited
-    uint interestX = aDai.balanceOf(address(this)) / totalPrincipal;
+    uint interestX = 1;
+    if (totalPrincipal > 0) {
+      interestX = aDai.balanceOf(address(this)) / totalPrincipal;
+    }
 
     // Apply multiple to individual member's savings deposit
     uint memberSavings = individualAmount[msg.sender] * interestX;

@@ -14,14 +14,46 @@ import { ethers } from 'ethers';
 // import NavBar from '../components/HorizontalLayout/Navbar';
 
 export default function Home() {
-  const [savingsContract, setSavingsAccount] = useState(null);
-  const [creditcard, setCreditcard] = useState(null);
+  const [savingsContract, setSavingsContract] = useState(null);
+  const [creditContract, setCreditContract] = useState(null);
+  const [savingsInfo, setSavingsInfo] = useState({});
+
   const savingsPoolAddress = '0x0E801D84Fa97b50751Dbf25036d067dCf18858bF';
 
-  async function viewSavingsAccount() {
-    let savings = await savingsContract.getTotalSavingsBalance();
-    savings = ethers.utils.formatEther(savings);
-    console.log(savings);
+  async function viewSavingsAccount(contract) {
+    let isMember;
+    let individualBalance;
+    let totalBalance;
+    let totalInterestAccrued;
+    
+    totalBalance = await contract.getTotalSavingsBalance();
+    totalBalance = ethers.utils.formatEther(totalBalance);
+    
+    totalInterestAccrued = await contract.getTotalInterestAccrued();
+
+    isMember = await contract.checkMembership();
+
+    if (isMember) {
+      individualBalance = await contract.getMemberSavingsBalance();
+    }
+    
+    setSavingsInfo({
+      isMember,
+      individualBalance,
+      totalBalance,
+      totalInterestAccrued
+    });
+  }
+
+  async function createMembership() {
+    if (savingsInfo.isMember) {
+      return console.log("You are already a member");
+    }
+    const createMembershipTx = await savingsContract.createMembership();
+    await createMembershipTx.wait();
+
+    const membershipStatus = await savingsContract.checkMembership();
+    return savingsContract.isMember = membershipStatus;
   }
 
   async function connectWallet() {
@@ -33,7 +65,9 @@ export default function Home() {
       });
       signer = provider.getSigner(account);
     } else {
-      const provider = new ethers.providers.JsonRpcProvider();
+      const provider = new ethers.providers.JsonRpcProvider(
+        process.env.ALCHEMY_MAINNET_KEY
+      );
       signer = provider.getSigner()
     }
 
@@ -43,7 +77,8 @@ export default function Home() {
       signer
     );
 
-    setSavingsAccount(contract);
+    setSavingsContract(contract);
+    viewSavingsAccount(contract);
   }
   
   return (
@@ -60,6 +95,11 @@ export default function Home() {
         </h1>
         <button onClick={connectWallet}>
           Connect Wallet
+        </button>
+        <p>Membership Status: {savingsInfo.isMember}</p>
+        <p>{savingsInfo.totalBalance}</p>
+        <button onClick={createMembership}>
+          Join Membership
         </button>
       </main>
 

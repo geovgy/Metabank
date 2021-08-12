@@ -25,7 +25,8 @@ module.exports = {
         url: process.env.ALCHEMY_MAINNET_KEY,
         blockNumber: 12936218,
         timeout: 50000
-      }
+      },
+      chainId: 1337
     }
   }
 };

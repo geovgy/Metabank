@@ -18,6 +18,7 @@ contract SavingsPool {
 
   // Credit Lending
   mapping(address => bool) private isCreditHolder;
+  mapping(address => bool) public isVerified;
   mapping(address => uint) private creditLimit;
   uint public immutable maxCreditLimit = 3000*(10**18);
   mapping(address => uint) private creditToRepay;
@@ -138,23 +139,33 @@ contract SavingsPool {
     multiples[0] = 1;
     multiples[1] = 2;
     multiples[2] = 3;
-    for (uint i; i < multiples.length; i++) {
-      if (maxCreditLimit > availableToBorrow) {
-        if (savings * multiples[i] <= availableToBorrow) {
-          proposedLimit[0] = savings * multiples[i];
+    if (isVerified[msg.sender]) {
+      for (uint i; i < multiples.length; i++) {
+        if (maxCreditLimit > availableToBorrow) {
+          if (savings * multiples[i] <= availableToBorrow) {
+            proposedLimit[0] = savings * multiples[i];
+          } else {
+            proposedLimit[0] = availableToBorrow;
+          }
         } else {
-          proposedLimit[0] = availableToBorrow;
+          if (savings * multiples[i] >= maxCreditLimit) {
+            proposedLimit[0] = maxCreditLimit;
+          } else {
+            proposedLimit[0] = savings * multiples[i];
+          }
         }
+      }
+    } else {
+      if (savings <= availableToBorrow) {
+        proposedLimit[0] = savings;
       } else {
-        if (savings * multiples[i] >= maxCreditLimit) {
-          proposedLimit[0] = maxCreditLimit;
-        } else {
-          proposedLimit[0] = savings * multiples[i];
-        }
+        proposedLimit[0] = availableToBorrow;
       }
     }
     // require(availableBorrowsETH >= proposedLimit[0], "Unable to lend money at this time");
     // require(totalCollateralETH > totalDebtETH + proposedLimit[0], "You cannot borrow that much");
+    
+    // Divided credit limit by 10^12 since USDC (token lended) only has decimal of 10^6
     creditLimit[msg.sender] = proposedLimit[0]/(10**12);
   }
 

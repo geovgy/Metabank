@@ -42,8 +42,8 @@ describe("Contracts", async () => {
   
       const [ user ] = await ethers.getSigners();
   
-      deposit = ethers.utils.parseEther('100');
-      await DAI.connect(user).approve(savingsInstance.address, ethers.utils.parseEther('200'));
+      deposit = ethers.utils.parseEther('200');
+      await DAI.connect(user).approve(savingsInstance.address, ethers.utils.parseEther('400'));
   
       const depositTx = await savingsInstance.depositTokensToSavings(deposit);
       await depositTx.wait();

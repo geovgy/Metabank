@@ -1,0 +1,32 @@
+.header {
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.walletBtn {
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid royalblue;
+    color: royalblue;
+    font-weight: bold;
+}
+
+.connectBtn {
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: royalblue;
+    border: 2px solid royalblue;
+    color: white;
+    font-weight: bold;
+    transition-duration: 0.4s;
+}
+
+.connectBtn:hover {
+    cursor: pointer;
+    transform: scale(1.02);
+}

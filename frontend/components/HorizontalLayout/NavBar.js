@@ -1,20 +1,21 @@
 import { useContext } from 'react';
 import { Web3Context } from '../Web3/Web3Context';
-import MetaMask from '../Web3/MetaMask';
+import Wallet from '../Web3/Wallet';
+
+import styles from '../../styles/NavBar.module.css'
 
 const NavBar = () => {
 	const { account } = useContext(Web3Context);
 
 	return (
-		<header>
+		<header className={styles.header}>
 			<nav>
 				{!account ? (
-					<MetaMask />
+					<Wallet />
 				) : (
 					<div>
-						<h3>Wallet Connected</h3>
-						<button onClick={() => console.log(account)}>
-							Check Account
+						<button className={styles.walletBtn} onClick={() => console.log(account)}>
+							Connected
 						</button>
 					</div>
 				)}

@@ -17,6 +17,9 @@ class GridLayout extends Component {
                     <h2>Savings</h2>
                     <p>Balance: <span>${this.props.individualSavings} (DAI)</span></p>
                     <p>Interest Earned: <span>${this.props.interestAccrued} (DAI)</span></p>
+                    <a href="/savings">
+                        <button>Go to Savings</button>
+                    </a>
                 </div>
                 <div className={styles.card}>
                     <h2>Credit</h2>
@@ -28,6 +31,7 @@ class GridLayout extends Component {
                     <h2>Total Pool</h2>
                     <p>Total Balance: <span>${this.props.totalSavings} (DAI)</span></p>
                     <p># of Members: <span>{this.props.memberCount}</span></p>
+                    <p>Total Interest: <span>{this.props.totalInterest}</span></p>
                 </div>
             </div>
         )

@@ -20,7 +20,7 @@ class GridLayout extends Component {
                 </div>
                 <div className={styles.card}>
                     <h2>Credit</h2>
-                    <p>Remaining: <span>${this.props.creditRemaining} (USDC)</span></p>
+                    <p>Remaining: <span>${this.props.creditAvailable} (USDC)</span></p>
                     <p>Outstanding: <span>${this.props.creditOwed} (USDC)</span></p>
                     <p>Limit: <span>${this.props.creditLimit} (USDC)</span></p>
                 </div>

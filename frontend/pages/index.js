@@ -111,7 +111,9 @@ export default function Home() {
 
         <GridLayout 
           individualSavings={savingsInfo.individualBalance}
-          creditOwed=''
+          creditOwed={creditInfo.owed}
+          creditLimit={creditInfo.limit}
+          creditAvailable={creditInfo.available}
           totalSavings={parseInt(savingsInfo.totalBalance)}
           totalInterest={savingsInfo.totalInterestAccrued}
         />

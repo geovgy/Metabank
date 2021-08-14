@@ -1,5 +1,5 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import Head from 'next/head';
+import styles from '../styles/Home.module.css';
 
 import { useState, useEffect } from 'react';
 
@@ -7,6 +7,8 @@ import { useState, useEffect } from 'react';
 import SavingsPool from '../../artifacts/contracts/SavingsPool.sol/SavingsPool.json';
 import CreditSpender from '../../artifacts/contracts/CreditSpender.sol/CreditSpender.json';
 import { ethers } from 'ethers';
+
+import GridLayout from '../components/GridLayout';
 
 // import { useContext } from 'react';
 // import { Web3Context } from '../components/Web3/Web3Context';
@@ -161,10 +163,11 @@ export default function Home() {
         <button onClick={connectWallet}>
           Connect Wallet
         </button>
-        
-        <p>Membership Status: {savingsInfo.isMember}</p>
-        <p>Total Savings Pool: {savingsInfo.totalBalance}</p>
-        <p>Personal Savings Balance: {savingsInfo.individualBalance}</p>
+        <GridLayout 
+          individualSavings={savingsInfo.individualBalance}
+          creditOwed=''
+          totalSavings={parseInt(savingsInfo.totalBalance)}
+        />
         
         <button onClick={createMembership}>
           Join Membership

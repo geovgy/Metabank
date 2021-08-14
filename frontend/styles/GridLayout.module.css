@@ -1,0 +1,30 @@
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(100px, 300px));
+    gap: 20px;
+    padding: 20px;
+}
+
+.card {
+    background-color: rgba(218, 227, 240, 0.753);
+    width: 100%;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.card h2 {
+    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
+    color: rgba(31, 34, 37, 0.75);
+}
+
+.card p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: rgba(31, 34, 37, 0.75);
+}
+
+.card span {
+    font-weight: bold;
+}

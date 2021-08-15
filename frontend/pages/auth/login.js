@@ -16,6 +16,34 @@ import login from '../../styles/login.module.css';
 
 const Login = (props) => {
 
+    const {
+        account,
+        savingsContract,
+        creditContract,
+        daiContract,
+        usdcContract,
+        savingsInfo,
+        creditInfo,
+        walletInfo
+    } = useContext(Web3Context);
+
+    async function createMembership() {
+        if (savingsInfo.isMember) {
+            return console.log("You are already a member");
+        }
+        const createMembershipTx = await savingsContract.createMembership();
+        await createMembershipTx.wait();
+
+        const membershipStatus = await savingsContract.checkMembership();
+        return savingsContract.isMember = membershipStatus;
+    }
+
+    // Unable to get address of signer
+    async function viewDAIBalance() {
+        const balance = await daiContract.balanceOf(account.address);
+        setWalletInfo(ethers.utils.formatEther(balance));
+    }
+
     return (
         <React.Fragment >
             <Row className={login.loginWrapper}>
@@ -121,13 +149,17 @@ background-size:contain;
                                                 >
                                                     Login
                                                 </button> */}
-                                                <button
-                                                    // className="btn btn-primary btn-block waves-effect waves-light"
-                                                    className={[login.loginCardlayout,]}
-                                                    type="submit"
-                                                >
-                                                    Login with Metamask
-                                                </button>
+                                                {!savingsInfo.isMember ? (
+
+
+                                                    <button onClick={createMembership}
+                                                        // className="btn btn-primary btn-block waves-effect waves-light"
+                                                        className={[login.loginCardlayout,]}
+                                                    // type="submit"
+                                                    >
+                                                        Login with Metamask
+                                                    </button>
+                                                ) : ('')}
                                             </div>
                                         </div>
 

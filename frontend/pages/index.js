@@ -61,6 +61,7 @@ export default function Home() {
           creditLimit={creditInfo.limit}
           creditAvailable={creditInfo.available}
           totalSavings={parseInt(savingsInfo.totalBalance)}
+          memberCount={savingsInfo.memberCount}
           totalInterest={savingsInfo.totalInterestAccrued}
         />
         

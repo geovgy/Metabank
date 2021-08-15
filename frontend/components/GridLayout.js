@@ -2,14 +2,6 @@ import { Component } from "react";
 import styles from '../styles/GridLayout.module.css';
 
 class GridLayout extends Component {
-    // constructor(props) {
-    //     super(props);
-    //     const individualSavings = '';
-    //     const totalSavings = '';
-    //     const creditLimit = '';
-    //     const creditOwed = '';
-    // }
-
     render() {
         return (
             <div className={styles.dashboard}>
@@ -20,7 +12,7 @@ class GridLayout extends Component {
                 </div>
                 <div className={styles.card}>
                     <h2>Credit</h2>
-                    <p>Remaining: <span>${this.props.creditAvailable} (USDC)</span></p>
+                    <p>Available: <span>${this.props.creditAvailable} (USDC)</span></p>
                     <p>Outstanding: <span>${this.props.creditOwed} (USDC)</span></p>
                     <p>Limit: <span>${this.props.creditLimit} (USDC)</span></p>
                 </div>

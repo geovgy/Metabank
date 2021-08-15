@@ -22,6 +22,33 @@ export default function Credit() {
         walletInfo
     } = useContext(Web3Context);
 
+    async function viewCreditAccount(creditContract) {
+        let creditLimit;
+        let creditOwed;
+        let creditAvailable;
+        let valid;
+
+        creditAvailable = await creditContract.creditAllowance();
+        creditAvailable = parseFloat(creditAvailable)/(10**6);
+
+        creditOwed = await creditContract.creditOutstanding();
+        creditOwed = parseFloat(creditOwed)/(10**6);
+
+        creditLimit = await creditContract.creditLimit();
+        creditLimit = parseFloat(creditLimit)/(10**6);
+
+        valid = await creditContract.valid();
+		if (valid) {valid = true} else {valid = false};
+
+        setCreditInfo({
+            available: creditAvailable,
+            owed: creditOwed,
+            limit: creditLimit,
+            address: creditContract.address,
+            valid
+        });
+    }
+
     async function getCreditLimit() {
         let creditLimit = await savingsContract.getCreditLimit();
         creditLimit = parseFloat(creditLimit)/(10**6);
@@ -70,26 +97,14 @@ export default function Credit() {
         viewCreditAccount(creditSpenderContract);
     }
 
-    async function viewCreditAccount(creditContract) {
-        let creditLimit;
-        let creditOwed;
-        let creditAvailable;
+    async function activateCreditContract() {
+        const approvalTx = await savingsContract.approveCreditHolder();
+        await approvalTx.wait();
 
-        creditAvailable = await creditContract.creditAllowance();
-        creditAvailable = parseFloat(creditAvailable)/(10**6);
+        const initializeTx = await savingsContract.initCreditSpender();
+        await initializeTx.wait();
 
-        creditOwed = await creditContract.creditOutstanding();
-        creditOwed = parseFloat(creditOwed)/(10**6);
-
-        creditLimit = await creditContract.creditLimit();
-        creditLimit = parseFloat(creditLimit)/(10**6);
-
-        setCreditInfo({
-            available: creditAvailable,
-            owed: creditOwed,
-            limit: creditLimit,
-            address: creditContract.address
-        });
+        viewCreditAccount(creditContract);
     }
 
     async function repay(e) {
@@ -145,11 +160,22 @@ export default function Credit() {
 
                             <br/>
 
-                            <button onClick={enableRepay} id="enableRepayBtn">Repay</button>
-                            <form method="post" onSubmit={repay} id="repay-form" hidden>
-                                <input type="number" placeholder="Enter Amount" required />
-                                <button type="submit">Submit Payment</button>
-                            </form>
+                            {!creditInfo.valid ? (
+                                <button 
+                                    onClick={activateCreditContract}
+                                    id="initCreditBtn"
+                                >
+                                    Activate
+                                </button>
+                            ):(
+                                <div>
+                                    <button onClick={enableRepay} id="enableRepayBtn">Repay</button>
+                                    <form method="post" onSubmit={repay} id="repay-form" hidden>
+                                        <input type="number" placeholder="Enter Amount" required />
+                                        <button type="submit">Submit Payment</button>
+                                    </form>
+                                </div>
+                            )}
                         </div>
                         <div className={styles.transactionList}>
                             <table>

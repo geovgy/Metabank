@@ -100,12 +100,15 @@ const Wallet = () => {
 			individualBalance = await contract.getMemberSavingsBalance();
 			individualBalance = ethers.utils.formatEther(individualBalance);
 		}
+
+		const memberCount = parseInt(await contract.memberCount());
 		
 		setSavingsInfo({
 			isMember,
 			individualBalance,
 			totalBalance,
-			totalInterestAccrued
+			totalInterestAccrued,
+			memberCount
 		});
 	}
 
@@ -113,6 +116,7 @@ const Wallet = () => {
         let creditLimit;
         let creditOwed;
         let creditAvailable;
+		let valid;
 
         creditAvailable = await creditContract.creditAllowance();
         creditAvailable = parseFloat(creditAvailable)/(10**6);
@@ -120,14 +124,18 @@ const Wallet = () => {
         creditOwed = await creditContract.creditOutstanding();
         creditOwed = parseFloat(creditOwed)/(10**6);
 
-        creditLimit = await creditContract.getCreditLimit();
+        creditLimit = await creditContract.creditLimit();
         creditLimit = parseFloat(creditLimit)/(10**6);
+
+		valid = await creditContract.valid();
+		if (valid) {valid = true} else {valid = false};
 
         setCreditInfo({
             available: creditAvailable,
             owed: creditOwed,
             limit: creditLimit,
-            address: creditContract.address
+            address: creditContract.address,
+			valid
         });
     }
 

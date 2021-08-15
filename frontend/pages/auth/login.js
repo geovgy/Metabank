@@ -266,7 +266,7 @@ export default function Home() {
 
                                         <div className="mt-4 text-center">
                                             <p className="mb-0">
-                                                By Logining you agree to the Metabank{" "}
+                                                By logging in, you agree to the Metabank{" "}
                                                 <div to="#" className="text-primary">
                                                     Terms of Use
                                                 </div>

@@ -65,11 +65,11 @@ export default function Home() {
           totalInterest={savingsInfo.totalInterestAccrued}
         />
         
-        {/* {!savingsInfo.isMember ? (
+        {!savingsInfo.isMember ? (
           <button onClick={createMembership}>
             Join Membership
           </button>
-        ):('')} */}
+        ):('')}
       </main>
 
       <footer className={styles.footer}>

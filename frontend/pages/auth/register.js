@@ -6,9 +6,10 @@ import { Link } from "react-router-dom";
 import { Row, Col, CardBody, Card, Container } from "reactstrap";
 
 // import images
-import profileImg from "../../assets/images/profile-img.png";
-import logoImg from "../../assets/images/logo.svg";
-import authbg from "../../assets/images/bg-auth-overlay.png";
+// import profileImg from "../../public/assets/images/profile-img.png";
+import logoImg from "../../public/assets/images/logo.svg";
+// import authbg from "../../public/assets/images/bg-auth-overlay.png";
+import authbg from "../../public/assets/images/auth-bbg.jpeg";
 
 const Register = (props) => {
 

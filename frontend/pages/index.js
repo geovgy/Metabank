@@ -13,19 +13,6 @@ import NavBar from '../components/HorizontalLayout/NavBar';
 import GridLayout from '../components/GridLayout';
 
 export default function Home() {
-  // User
-  // const [account, setAccount] = useState('');
-  // // Main contracts
-  // const [savingsContract, setSavingsContract] = useState(null);
-  // const [creditContract, setCreditContract] = useState(null);
-  // // ERC20 token contracts
-  // const [daiContract, setDaiContract] = useState(null);
-  // const [usdcContract, setUsdcContract] = useState(null);
-  // // User's financial info
-  // const [savingsInfo, setSavingsInfo] = useState({});
-  // const [creditInfo, setCreditInfo] = useState({});
-  // const [walletInfo, setWalletInfo] = useState('');
-
   const {
     account,
     savingsContract,
@@ -48,51 +35,10 @@ export default function Home() {
     return savingsContract.isMember = membershipStatus;
   }
 
-  async function swapETHToDAI(e) {
-    e.preventDefault();
-
-    const amountInput = document.querySelector('#swap-form').querySelector('input');
-    const amountValue = amountInput.value;
-
-    await savingsContract.swap({
-      value: ethers.utils.parseEther(`${amountValue}`)
-    });
-
-    return;
-  }
-
+  // Unable to get address of signer
   async function viewDAIBalance() {
-    // Unable to get address of signer
     const balance = await daiContract.balanceOf(account.address);
     setWalletInfo(ethers.utils.formatEther(balance));
-  }
-
-  async function depositToSavings(e) {
-    e.preventDefault();
-
-    const amountInput = document.querySelector('#deposit-form').querySelector('input');
-    const amountValue = amountInput.value;
-    
-    const approvalTx = await daiContract.approve(savingsContract.address, ethers.utils.parseEther(`${amountValue}`));
-    await approvalTx.wait();
-
-    const depositTx = await savingsContract.depositTokensToSavings(ethers.utils.parseEther(`${amountValue}`));
-    await depositTx.wait();
-
-    viewSavingsAccount(savingsContract);
-  }
-
-  //
-  async function withdrawFromSavings(e) {
-    e.preventDefault();
-
-    const amountInput = document.querySelector('#withdrawal-form').querySelector('input');
-    const amountValue = amountInput.value;
-
-    const withdrawalTx = await savingsContract.withdrawFromSavings(ethers.utils.parseEther(`${amountValue}`));
-    await withdrawalTx.wait();
-
-    viewSavingsAccount(savingsContract);
   }
   
   return (
@@ -118,40 +64,11 @@ export default function Home() {
           totalInterest={savingsInfo.totalInterestAccrued}
         />
         
-        <button onClick={createMembership}>
-          Join Membership
-        </button>
-
-        <button onClick={viewDAIBalance}>
-          View Balance
-        </button>
-
-        {/* <p>Wallet ETH: {walletInfo.eth}</p> */}
-        <p>Wallet DAI: {walletInfo.dai}</p>
-
-        <form id="swap-form" method="post" action="/" onSubmit={swapETHToDAI}>
-          <p>Swap to DAI</p>
-          <input type="number" placeholder="Enter amount" required />
-          <button type="submit">
-            Swap
+        {!savingsInfo.isMember ? (
+          <button onClick={createMembership}>
+            Join Membership
           </button>
-        </form>
-
-        <form id="deposit-form" method="post" action="/" onSubmit={depositToSavings}>
-          <p>Deposit</p>
-          <input type="number" placeholder="Enter amount" required />
-          <button type="submit">
-            Deposit
-          </button>
-        </form>
-
-        <form id="withdrawal-form" method="post" action="/" onSubmit={withdrawFromSavings}>
-          <p>Withdraw</p>
-          <input type="number" placeholder="Enter amount" required />
-          <button type="submit">
-            Withdraw
-          </button>
-        </form>
+        ):('')}
       </main>
 
       <footer className={styles.footer}>

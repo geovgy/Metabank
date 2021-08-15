@@ -93,6 +93,7 @@ export default function Credit() {
     }
 
     async function repay(e) {
+        e.preventDefault();
         const repayForm = document.querySelector('#repay-form');
         const amount = repayForm.querySelector('.amount').value;
         const enableBtn = document.querySelector('#enableRepayBtn');
@@ -121,7 +122,7 @@ export default function Credit() {
     return (
         <div>
             <Head>
-                <title>Metabank</title>
+                <title>Credit | Metabank</title>
                 <meta name="description" content="Banking for the Metaverse" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
@@ -136,14 +137,11 @@ export default function Credit() {
                         <div className={styles.showcase}>
                             <p>Credit Available</p>
                             <h1>{creditInfo.available}</h1>
-                            <h1>$1791.63</h1>
                             <hr/>
                             <p>Credit Limit</p>
                             <h2>{creditInfo.limit}</h2>
-                            <h2>$3000</h2>
                             <p>Need to repay</p>
                             <h2>{creditInfo.owed}</h2>
-                            <h2>$1208.37</h2>
 
                             <br/>
 

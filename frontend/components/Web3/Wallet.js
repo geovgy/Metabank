@@ -70,7 +70,7 @@ const Wallet = () => {
             );
             
             setCreditContract(creditSpender);
-            viewCreditAccount(creditSpender, savingsPoolContract);
+            viewCreditAccount(creditSpender);
         } catch (err) {
             console.log(err);
 
@@ -109,7 +109,7 @@ const Wallet = () => {
 		});
 	}
 
-    async function viewCreditAccount(creditContract, savingsContract) {
+    async function viewCreditAccount(creditContract) {
         let creditLimit;
         let creditOwed;
         let creditAvailable;
@@ -120,7 +120,7 @@ const Wallet = () => {
         creditOwed = await creditContract.creditOutstanding();
         creditOwed = parseFloat(creditOwed)/(10**6);
 
-        creditLimit = await savingsContract.getCreditLimit();
+        creditLimit = await creditContract.getCreditLimit();
         creditLimit = parseFloat(creditLimit)/(10**6);
 
         setCreditInfo({

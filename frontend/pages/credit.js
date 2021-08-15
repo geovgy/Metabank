@@ -8,6 +8,7 @@ import { ethers } from 'ethers';
 import { Web3Context } from '../components/Web3/Web3Context';
 import NavBar from '../components/HorizontalLayout/NavBar';
 import Head from 'next/head';
+import styles from '../styles/Credit.module.css';
 
 export default function Credit() {
     const {
@@ -66,10 +67,10 @@ export default function Credit() {
         );
 
         setCreditContract(creditSpenderContract);
-        viewCreditAccount(creditSpenderContract, savingsContract);
+        viewCreditAccount(creditSpenderContract);
     }
 
-    async function viewCreditAccount(creditContract, savingsContract) {
+    async function viewCreditAccount(creditContract) {
         let creditLimit;
         let creditOwed;
         let creditAvailable;
@@ -80,7 +81,7 @@ export default function Credit() {
         creditOwed = await creditContract.creditOutstanding();
         creditOwed = parseFloat(creditOwed)/(10**6);
 
-        creditLimit = await savingsContract.getCreditLimit();
+        creditLimit = await creditContract.creditLimit();
         creditLimit = parseFloat(creditLimit)/(10**6);
 
         setCreditInfo({
@@ -89,6 +90,32 @@ export default function Credit() {
             limit: creditLimit,
             address: creditContract.address
         });
+    }
+
+    async function repay(e) {
+        const repayForm = document.querySelector('#repay-form');
+        const amount = repayForm.querySelector('.amount').value;
+        const enableBtn = document.querySelector('#enableRepayBtn');
+
+        const usdcAmount = parseFloat(amount)*(10**6);
+        const approvalTx = await usdcContract.approve(creditContract.address, usdcAmount);
+        await approvalTx.wait();
+
+        const repayTx = await creditContract.repay(usdcAmount);
+        await repayTx.wait();
+
+        viewCreditAccount(creditContract);
+
+        repayForm.hidden = true;
+        enableBtn.hidden = false;
+    }
+
+    function enableRepay() {
+        const repayForm = document.querySelector('#repay-form');
+        const enableBtn = document.querySelector('#enableRepayBtn');
+
+        repayForm.hidden = false;
+        enableBtn.hidden = true;
     }
 
     return (
@@ -102,31 +129,78 @@ export default function Credit() {
             <NavBar />
 
             <main>
-                {creditInfo.limit ? (
-                    <div>
-                        <p>Credit Limit: {creditInfo.limit}</p>
-                        {creditInfo.address ? (''):(
-                            <button onClick={createCreditLimit}>
-                                New Credit Limit
-                            </button>
-                        )}
-                    </div>
-                ):(
-                    <button onClick={createCreditLimit}>
-                        Generate Credit Limit
-                    </button>
-                )}
+                <h1 className={styles.title}>Credit</h1>
+                
                 {creditInfo.address ? (
-                    <div>
-                        <p>Credit Available: {creditInfo.available}</p>
-                        <p>Outstanding: {creditInfo.owed}</p>
-                        <p>Contract Address: {creditInfo.address}</p>
+                    <div className={styles.row}>
+                        <div className={styles.showcase}>
+                            <p>Credit Available</p>
+                            <h1>{creditInfo.available}</h1>
+                            <h1>$1791.63</h1>
+                            <hr/>
+                            <p>Credit Limit</p>
+                            <h2>{creditInfo.limit}</h2>
+                            <h2>$3000</h2>
+                            <p>Need to repay</p>
+                            <h2>{creditInfo.owed}</h2>
+                            <h2>$1208.37</h2>
+
+                            <br/>
+
+                            <button onClick={enableRepay} id="enableRepayBtn">Repay</button>
+                            <form method="post" onSubmit={repay} id="repay-form" hidden>
+                                <input type="number" placeholder="Enter Amount" required />
+                                <button type="submit">Submit Payment</button>
+                            </form>
+                        </div>
+                        <div className={styles.transactionList}>
+                            <table>
+                                <thead>
+                                    <th>Date</th>
+                                    <th>Recipient</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>12/25/20</td>
+                                        <td>0xabc123...</td>
+                                        <td>Spent</td>
+                                        <td>$69</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 ):(
-                    <div>
-                        <button onClick={issueCreditContract}>
-                            Get a Credit Card
-                        </button>
+                    <div className={styles.row}>
+                        <div className={styles.showcase}>
+                        {creditInfo.limit ? (
+                            <div className={styles.column}>
+                                <p>Calculated Credit Limit</p>
+                                <h2>$ {creditInfo.limit} USDC</h2>
+                                {creditInfo.address ? (''):(
+                                    <div style={{padding: '20px'}}>
+                                        <button onClick={createCreditLimit}>
+                                            Recalculate
+                                        </button>
+                                        <button onClick={issueCreditContract}>
+                                            Get a Credit Card
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ):(
+                            <div>
+                                <button onClick={createCreditLimit}>
+                                    Generate Credit Limit
+                                </button>
+                                <button onClick={issueCreditContract}>
+                                    Get a Credit Card
+                                </button>
+                            </div>
+                        )}
+                        </div>
                     </div>
                 )}
             </main>

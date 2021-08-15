@@ -8,7 +8,7 @@
 .walletBtn {
     text-decoration: none;
     padding: 10px;
-    border-radius: 10px;
+    border-radius: 5px;
     background-color: rgba(255, 255, 255, 0.1);
     border: 2px solid royalblue;
     color: royalblue;
@@ -18,7 +18,7 @@
 .connectBtn {
     text-decoration: none;
     padding: 10px;
-    border-radius: 10px;
+    border-radius: 5px;
     background-color: royalblue;
     border: 2px solid royalblue;
     color: white;
@@ -29,4 +29,14 @@
 .connectBtn:hover {
     cursor: pointer;
     transform: scale(1.02);
+}
+
+.navitem {
+    color: rgba(31, 34, 37, 0.75);
+    font-weight: bold;
+    margin-right: 20px;
+}
+
+.navitem:hover {
+    color: black;
 }

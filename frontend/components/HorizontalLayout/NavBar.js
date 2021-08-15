@@ -14,6 +14,15 @@ const NavBar = () => {
 					<Wallet />
 				) : (
 					<div>
+						<a className={styles.navitem} href="/">
+							Home
+						</a>
+						<a className={styles.navitem} href="/savings">
+							Savings
+						</a>
+						<a className={styles.navitem} href="/credit">
+							Credit
+						</a>
 						<button className={styles.walletBtn} onClick={() => console.log(account)}>
 							Connected
 						</button>

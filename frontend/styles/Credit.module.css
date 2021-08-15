@@ -82,3 +82,8 @@
 .transactionList td {
     padding: 10px 20px 10px 20px;
 }
+
+.showcase span {
+    font-size: 0.75ch;
+    color: rgba(31, 34, 37, 0.75);
+}

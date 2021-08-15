@@ -119,3 +119,19 @@
     flex-direction: column;
   }
 }
+
+.button {
+  text-decoration: none;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: royalblue;
+  border: 1px solid royalblue;
+  color: white;
+  font-weight: bold;
+  transition-duration: 0.4s;
+}
+
+.button:hover {
+  cursor: pointer;
+  transform: scale(1.02);
+}

@@ -153,7 +153,7 @@ export default function Savings() {
                 <div className={styles.row}>
                     <div className={styles.showcase}>
                         <p>Current Balance</p>
-                        <h1>${savingsInfo.individualBalance} DAI</h1>
+                        <h1>{savingsInfo.individualBalance} <span>DAI</span></h1>
                         <hr/>
 
                         <br/>

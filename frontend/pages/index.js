@@ -66,7 +66,7 @@ export default function Home() {
         />
         
         {!savingsInfo.isMember ? (
-          <button onClick={createMembership}>
+          <button onClick={createMembership} className={styles.button}>
             Join Membership
           </button>
         ):('')}

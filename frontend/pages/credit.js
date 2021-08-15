@@ -151,12 +151,12 @@ export default function Credit() {
                     <div className={styles.row}>
                         <div className={styles.showcase}>
                             <p>Credit Available</p>
-                            <h1>{creditInfo.available}</h1>
+                            <h1>{creditInfo.available} <span>USDC</span></h1>
                             <hr/>
                             <p>Credit Limit</p>
-                            <h2>{creditInfo.limit}</h2>
+                            <h2>{creditInfo.limit} <span>USDC</span></h2>
                             <p>Need to repay</p>
-                            <h2>{creditInfo.owed}</h2>
+                            <h2>{creditInfo.owed} <span>USDC</span></h2>
 
                             <br/>
 
